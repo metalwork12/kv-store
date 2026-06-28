@@ -1,0 +1,12 @@
+# Compiled object files
+*.o
+
+# Compiled executables
+main
+client/client
+*.out
+
+# Editor/OS junk
+.vscode/
+*.swp
+.DS_Store
