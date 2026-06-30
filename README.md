@@ -46,9 +46,9 @@ kv-store/
 
 - In-memory hash table supporting `SET key value`, `GET key`, `DEL key` (DONE).
 - Simple text-based protocol over TCP (plain-text commands, not full RESP)
-- Single-threaded TCP server (`socket → bind → listen → accept → recv/send`)
-- A basic CLI client to send commands
-- **Milestone:** run the server, connect with the client (or `telnet`/`nc`), and successfully `SET`/`GET` values.
+- Single-threaded TCP server (`socket → bind → listen → accept → recv/send`) (DONE)
+- A basic CLI client to send commands 
+- **Milestone:** run the server, connect with the client (or `telnet`/`nc`), and successfully `SET`/`GET` values. 
 
 ### Week 2 — Concurrency
 

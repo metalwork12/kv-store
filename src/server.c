@@ -53,115 +53,120 @@ void runLoop(int socket, HashTable* hashtable){
             printf("Failed to create client socket\n");
             continue;
         }
+
+        while(1){
+            //Read in the client data
+            char buffer[1024];
+            int bytes_read = recv(client_fd, buffer, sizeof(buffer), 0);
+            if(bytes_read == -1){
+                printf("Error reading bytes\n");
+                
+                break;
+            }
+            else if(bytes_read == 0){
+                printf("Client disconnected\n");
+                
+                break;
+            }
+
+            //Add ull terminate
+            buffer[bytes_read] = '\0';
+           
+
+            //check the first token and act accordingly
+            char* first_token = strtok(buffer, " ");
+            if(first_token == NULL){
+                printf("NULL token\n");
+                send(client_fd, "-ERROR empty command\n", strlen("-ERROR empty command\n"), 0);
+                
+                continue;
+            }
+            else if(strcmp(first_token, "GET") == 0){
+                
+                char* next_token = strtok(NULL, " \n");
+                if(next_token == NULL){
+                    printf("Error getting token for GET command\n");
+                    send(client_fd, "-ERROR with GET format\n", strlen("-ERROR with GET format\n"), 0);
+                    
+                    continue;
+                }
+                char* value = get(hashtable, next_token);
+                if(value == NULL){
+                    printf("Key not found: %s\n", next_token);
+                    send(client_fd, "-NOT FOUND\n", strlen("-NOT FOUND\n"), 0);
+                    
+                    continue;
+                }
+                else{
+                    char response[1024];
+                    snprintf(response, sizeof(response), "%s\n", value);
+                    send(client_fd, response, strlen(response), 0);
+                    
+                }
+            }
+
+            else if(strcmp(first_token, "SET") ==0){
+                char* key = strtok(NULL, " ");
+                if(key == NULL){
+                    printf("Error getting first token for SET command\n");
+                    send(client_fd, "-ERROR SET formatting 1\n",strlen("-ERROR SET formatting 1\n"), 0 );
+                    
+                    continue;
+                }
+                char* value = strtok(NULL, " \n");
+                if(value == NULL){
+                    printf("Error getting second token for SET command\n");
+                    send(client_fd, "-ERROR SET formatting 2\n",strlen("-ERROR SET formatting 2\n"), 0 );
+                    
+                    continue;
+                }
+                int set_value = set(hashtable, key, value);
+                if(set_value == -1){
+                    printf("Error setting the key value pair\n");
+                    send(client_fd, "-ERROR setting\n", strlen("-ERROR setting\n"), 0);
+                    
+                    continue;
+                }
+                else{
+                    send(client_fd, "+OK\n", strlen("+OK\n"), 0);
+                    
+                }
+
+
+            }
+            else if(strcmp(first_token, "DEL") == 0){
+                char* del_key = strtok(NULL, " \n");
+                
+                if(del_key == NULL){
+                    printf("Error getting first token for DEL command\n");
+                    send(client_fd, "-ERROR DEL formatting 1\n",strlen("-ERROR DEL formatting 1\n"), 0 );
+                    
+                    continue;
+                }
+                int del_res = delete(hashtable, del_key);
+                if(del_res == -1){
+                    printf("Error deleting key/value\n");
+                    send(client_fd, "-ERROR DEL\n",strlen("-ERROR DEL\n"), 0 );
+                    
+                    continue;
+                }
+                else{
+                    send(client_fd, "+OK\n", strlen("+OK\n"), 0);
+                    
+                }
+
+            }
+            else{
+                printf("Error Understanding the first token\n");
+                send(client_fd, "-ERROR unknown command\n", strlen("-ERROR unknown command\n"), 0);
+                
+                continue;
+            }
+
+        }
+        close(client_fd);
         
-        //Read in the client data
-        char buffer[1024];
-        int bytes_read = recv(client_fd, buffer, sizeof(buffer), 0);
-        if(bytes_read == -1){
-            printf("Error reading bytes\n");
-            close(client_fd);
-            continue;
-        }
-        else if(bytes_read == 0){
-            printf("Client disconnected\n");
-            close(client_fd);
-            continue;
-        }
-
-        //Add ull terminate
-        buffer[bytes_read] = '\0';
-        printf("Received: %s\n", buffer);
-
-        //check the first token and act accordingly
-        char* first_token = strtok(buffer, " ");
-        if(first_token == NULL){
-            printf("NULL token\n");
-            send(client_fd, "-ERROR empty command\n", strlen("-ERROR empty command\n"), 0);
-            close(client_fd);
-            continue;
-        }
-        else if(strcmp(first_token, "GET") == 0){
-            printf("GET\n");
-            char* next_token = strtok(NULL, " \n");
-            if(next_token == NULL){
-                printf("Error getting token for GET command\n");
-                send(client_fd, "-ERROR with GET format\n", strlen("-ERROR with GET format\n"), 0);
-                close(client_fd);
-                continue;
-            }
-            char* value = get(hashtable, next_token);
-            if(value == NULL){
-                printf("Key not found: %s\n", next_token);
-                send(client_fd, "-NOT FOUND\n", strlen("-NOT FOUND\n"), 0);
-                close(client_fd);
-                continue;
-            }
-            else{
-                char response[1024];
-                snprintf(response, sizeof(response), "%s\n", value);
-                send(client_fd, response, strlen(response), 0);
-                close(client_fd);
-            }
-        }
-
-        else if(strcmp(first_token, "SET") ==0){
-            char* key = strtok(NULL, " ");
-            if(key == NULL){
-                printf("Error getting first token for SET command\n");
-                send(client_fd, "-ERROR SET formatting 1\n",strlen("-ERROR SET formatting 1\n"), 0 );
-                close(client_fd);
-                continue;
-            }
-            char* value = strtok(NULL, " \n");
-            if(value == NULL){
-                printf("Error getting second token for SET command\n");
-                send(client_fd, "-ERROR SET formatting 2\n",strlen("-ERROR SET formatting 2\n"), 0 );
-                close(client_fd);
-                continue;
-            }
-            int set_value = set(hashtable, key, value);
-            if(set_value == -1){
-                printf("Error setting the key value pair\n");
-                send(client_fd, "-ERROR setting\n", strlen("-ERROR setting\n"), 0);
-                close(client_fd);
-                continue;
-            }
-            else{
-                send(client_fd, "+OK\n", strlen("+OK\n"), 0);
-                close(client_fd);
-            }
-
-
-        }
-        else if(strcmp(first_token, "DEL") == 0){
-            char* del_key = strtok(NULL, " \n");
-            
-            if(del_key == NULL){
-                printf("Error getting first token for DEL command\n");
-                send(client_fd, "-ERROR DEL formatting 1\n",strlen("-ERROR DEL formatting 1\n"), 0 );
-                close(client_fd);
-                continue;
-            }
-            int del_res = delete(hashtable, del_key);
-            if(del_res == -1){
-                printf("Error deleting key/value\n");
-                send(client_fd, "-ERROR DEL\n",strlen("-ERROR DEL\n"), 0 );
-                close(client_fd);
-                continue;
-            }
-            else{
-                send(client_fd, "+OK\n", strlen("+OK\n"), 0);
-                close(client_fd);
-            }
-
-        }
-        else{
-            printf("Error Understanding the first token\n");
-            send(client_fd, "-ERROR unknown command\n", strlen("-ERROR unknown command\n"), 0);
-            close(client_fd);
-            continue;
-        }
-
+        
     }
     
 }
