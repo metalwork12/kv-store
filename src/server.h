@@ -2,7 +2,7 @@
 #define SERVER_H
 #include "hashtable.h"
 
-int setupServer(int portNumber);
+int setUpServer(int portNumber);
 
 
 void runLoop(int socket, HashTable* hashtable);

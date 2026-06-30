@@ -40,8 +40,8 @@ int set(HashTable* hashtable, char* key, char* value){
         if(entry == NULL){
             return -1;
         }
-        entry->key = key;
-        entry->value = value;
+        entry->key = strdup(key);
+        entry->value = strdup(value);
         entry->nextEntry = NULL;
         hashtable->buckets[hashed_key] = entry;
         return 0;
@@ -49,13 +49,15 @@ int set(HashTable* hashtable, char* key, char* value){
     else{
         Entry* current_ent = hashtable->buckets[hashed_key];
         if(strcmp(current_ent->key, key) == 0){
-            current_ent->value = value;
+            free(current_ent->value);
+            current_ent->value = strdup(value);
             return 0;
         }
         while(current_ent->nextEntry != NULL){
             current_ent = current_ent->nextEntry;
             if(strcmp(current_ent->key, key) == 0){
-                current_ent->value = value;
+                free(current_ent->value);
+                current_ent->value = strdup(value);
                 return 0;
             }
             
@@ -64,8 +66,8 @@ int set(HashTable* hashtable, char* key, char* value){
         if(entry == NULL){
             return -1;
         }
-        entry->key = key;
-        entry->value = value;
+        entry->key = strdup(key);
+        entry->value = strdup(value);
         entry->nextEntry = NULL;
         
         current_ent->nextEntry = entry;
@@ -103,6 +105,8 @@ int delete(HashTable* hashtable, char* key){
     if (entry == NULL) { return -1; }
     if(strcmp(entry->key, key) ==0){
         hashtable->buckets[hashed_key] = entry->nextEntry;
+        free(entry->key);
+        free(entry->value);
         free(entry);
         return 0;
     }
@@ -111,6 +115,8 @@ int delete(HashTable* hashtable, char* key){
     while(entry != NULL){
         if(strcmp(entry->key, key) == 0){
             previous->nextEntry = entry->nextEntry;
+            free(entry->key);
+            free(entry->value);
             free(entry);
             return 0;
         }
@@ -125,6 +131,8 @@ void freeHashTable(HashTable* hashtable){
         Entry* entry = hashtable->buckets[i];
         while(entry != NULL){
             Entry* next = entry->nextEntry;
+            free(entry->key);
+            free(entry->value);
             free(entry);
             entry = next;
         }

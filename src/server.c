@@ -70,16 +70,18 @@ void runLoop(int socket, HashTable* hashtable){
 
         //Add ull terminate
         buffer[bytes_read] = '\0';
-
+        printf("Received: %s\n", buffer);
 
         //check the first token and act accordingly
         char* first_token = strtok(buffer, " ");
         if(first_token == NULL){
+            printf("NULL token\n");
             send(client_fd, "-ERROR empty command\n", strlen("-ERROR empty command\n"), 0);
             close(client_fd);
             continue;
         }
         else if(strcmp(first_token, "GET") == 0){
+            printf("GET\n");
             char* next_token = strtok(NULL, " \n");
             if(next_token == NULL){
                 printf("Error getting token for GET command\n");
@@ -95,7 +97,9 @@ void runLoop(int socket, HashTable* hashtable){
                 continue;
             }
             else{
-                send(client_fd, value, strlen(value), 0);
+                char response[1024];
+                snprintf(response, sizeof(response), "%s\n", value);
+                send(client_fd, response, strlen(response), 0);
                 close(client_fd);
             }
         }
