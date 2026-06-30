@@ -42,7 +42,7 @@ int setUpServer(int portNumber){
 }
 
 
-void runLoop(int socket, HashTable* hashtable){
+void runLoop(int socket, HashTable* hashtable, ThreadPool* threadpool){
     while(1){
         
         //Accept to create a socket for the client while originial socket stays listening
@@ -54,7 +54,18 @@ void runLoop(int socket, HashTable* hashtable){
             continue;
         }
 
-        while(1){
+        submitJob(threadpool, client_fd);
+
+
+        
+        
+    }
+    
+}
+
+
+void handleClient(int client_fd, HashTable* hashtable){
+     while(1){
             //Read in the client data
             char buffer[1024];
             int bytes_read = recv(client_fd, buffer, sizeof(buffer), 0);
@@ -166,8 +177,5 @@ void runLoop(int socket, HashTable* hashtable){
         close(client_fd);
         
         
-    }
     
 }
-
-

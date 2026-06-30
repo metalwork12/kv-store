@@ -1,7 +1,7 @@
 
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
-
+#include <pthread.h>
 
 //Structure used for each entry in the hash table
 // With key, value and nextEntry values
@@ -16,6 +16,7 @@ typedef struct Entry{
 typedef struct HashTable{
     int size;
     Entry* buckets[1024];
+    pthread_mutex_t mutex;
 
 
 } HashTable;

@@ -48,7 +48,7 @@ kv-store/
 - Simple text-based protocol over TCP (plain-text commands, not full RESP)
 - Single-threaded TCP server (`socket → bind → listen → accept → recv/send`) (DONE)
 - A basic CLI client to send commands 
-- **Milestone:** run the server, connect with the client (or `telnet`/`nc`), and successfully `SET`/`GET` values. 
+- **Milestone:** run the server, connect with the client (or `telnet`/`nc`), and successfully `SET`/`GET` values. (DONE)
 
 ### Week 2 — Concurrency
 

@@ -5,8 +5,16 @@
 main
 client/client
 *.out
+server
+kv-client
+test_run
 
 # Editor/OS junk
 .vscode/
 *.swp
 .DS_Store
+
+
+notes.txt
+
+
