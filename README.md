@@ -44,7 +44,7 @@ kv-store/
 
 **Goal:** a working server that one client can talk to.
 
-- In-memory hash table supporting `SET key value`, `GET key`, `DEL key`
+- In-memory hash table supporting `SET key value`, `GET key`, `DEL key` (DONE).
 - Simple text-based protocol over TCP (plain-text commands, not full RESP)
 - Single-threaded TCP server (`socket → bind → listen → accept → recv/send`)
 - A basic CLI client to send commands

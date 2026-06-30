@@ -32,37 +32,46 @@ HashTable* createHashTable(){
 
 }
 
-void set(HashTable* hashtable, char* key, char* value){
+int set(HashTable* hashtable, char* key, char* value){
     unsigned long hashed_key = hash((unsigned char*)key) % hashtable->size; //Find the hash value
 
     if(hashtable->buckets[hashed_key] == NULL){
         Entry* entry = (Entry*) malloc(sizeof(Entry));
+        if(entry == NULL){
+            return -1;
+        }
         entry->key = key;
         entry->value = value;
         entry->nextEntry = NULL;
         hashtable->buckets[hashed_key] = entry;
+        return 0;
     }
     else{
         Entry* current_ent = hashtable->buckets[hashed_key];
         if(strcmp(current_ent->key, key) == 0){
             current_ent->value = value;
-            return;
+            return 0;
         }
         while(current_ent->nextEntry != NULL){
             current_ent = current_ent->nextEntry;
             if(strcmp(current_ent->key, key) == 0){
                 current_ent->value = value;
-                return;
+                return 0;
             }
             
         }
         Entry* entry = (Entry*) malloc(sizeof(Entry));
+        if(entry == NULL){
+            return -1;
+        }
         entry->key = key;
         entry->value = value;
         entry->nextEntry = NULL;
         
         current_ent->nextEntry = entry;
+        return 0;
     }
+    
 }
 
 char* get(HashTable* hashtable, char* key){
@@ -88,14 +97,14 @@ char* get(HashTable* hashtable, char* key){
 
 //Check current entry if key == key then remove and entry = next
 //after that while next 
-void delete(HashTable* hashtable, char* key){
+int delete(HashTable* hashtable, char* key){
     unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
     Entry* entry = hashtable->buckets[hashed_key];
-    if (entry == NULL) { return; }
+    if (entry == NULL) { return -1; }
     if(strcmp(entry->key, key) ==0){
         hashtable->buckets[hashed_key] = entry->nextEntry;
         free(entry);
-        return;
+        return 0;
     }
     Entry* previous = entry;
     entry = entry->nextEntry;
@@ -103,12 +112,12 @@ void delete(HashTable* hashtable, char* key){
         if(strcmp(entry->key, key) == 0){
             previous->nextEntry = entry->nextEntry;
             free(entry);
-            return;
+            return 0;
         }
         previous = entry;
         entry= entry->nextEntry;
     }
-    return;
+    return -1;
 }
 
 void freeHashTable(HashTable* hashtable){

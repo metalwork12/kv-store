@@ -27,13 +27,13 @@ HashTable* createHashTable();
 
 //Set a key value pair
 
-void set(HashTable* hashtable, char* key, char* value);
+int set(HashTable* hashtable, char* key, char* value);
 
 //Get the value from a key
 char* get(HashTable* hashtable, char* key);
 
 //Delete a key value pair
-void delete(HashTable* hashtable, char* key);
+int delete(HashTable* hashtable, char* key);
 
 
 //Destroy/free the table
