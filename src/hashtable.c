@@ -66,6 +66,7 @@ void set(HashTable* hashtable, char* key, char* value){
 }
 
 char* get(HashTable* hashtable, char* key){
+
     unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
     Entry* entry = hashtable->buckets[hashed_key];
     if(entry == NULL){
@@ -83,5 +84,43 @@ char* get(HashTable* hashtable, char* key){
         }
     }
     return NULL;
-    
+    }
+
+//Check current entry if key == key then remove and entry = next
+//after that while next 
+void delete(HashTable* hashtable, char* key){
+    unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
+    Entry* entry = hashtable->buckets[hashed_key];
+    if (entry == NULL) { return; }
+    if(strcmp(entry->key, key) ==0){
+        hashtable->buckets[hashed_key] = entry->nextEntry;
+        free(entry);
+        return;
+    }
+    Entry* previous = entry;
+    entry = entry->nextEntry;
+    while(entry != NULL){
+        if(strcmp(entry->key, key) == 0){
+            previous->nextEntry = entry->nextEntry;
+            free(entry);
+            return;
+        }
+        previous = entry;
+        entry= entry->nextEntry;
+    }
+    return;
+}
+
+void freeHashTable(HashTable* hashtable){
+    for(int i = 0; i < hashtable->size; i++){
+        Entry* entry = hashtable->buckets[i];
+        while(entry != NULL){
+            Entry* next = entry->nextEntry;
+            free(entry);
+            entry = next;
+        }
+    }
+
+    free(hashtable);
+    return;
 }
