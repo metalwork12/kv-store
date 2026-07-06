@@ -133,6 +133,7 @@ int delete(HashTable* hashtable, char* key){
             previous->nextEntry = entry->nextEntry;
             free(entry->key);
             free(entry->value);
+    
             free(entry);
             pthread_mutex_unlock(&hashtable->mutex);
             return 0;
@@ -151,6 +152,7 @@ void freeHashTable(HashTable* hashtable){
             Entry* next = entry->nextEntry;
             free(entry->key);
             free(entry->value);
+     
             free(entry);
             entry = next;
         }

@@ -17,12 +17,15 @@ typedef struct ThreadPool{
     pthread_t threads[THREAD_COUNT]; //list of threads available
     HashTable* hashtable;
 
+    pthread_t sweeper_thread;
+
 } ThreadPool;
 
 ThreadPool* createThreadPool(HashTable* hashtable); //create and initialise the thread pool
 void submitJob(ThreadPool* pool, int clientSocket); //adds connection to the queue
 void freeThreadPool(ThreadPool* pool); //shut down and clean up
 
+void* sweeper(void* arg); //sweeper function to check expiries.
 
 
 #endif

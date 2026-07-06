@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "server.h"
 #include <stdio.h>
-
+#include <time.h>
+#include <unistd.h>
 
 void* workerFunction(void* arg){
     //cast arg to threadpool*
@@ -76,6 +77,10 @@ ThreadPool* createThreadPool(HashTable* hashtable){
     }
 
 
+    //create sweeper thread
+    pthread_create(&threadpool->sweeper_thread, NULL, sweeper, threadpool);
+
+
     return threadpool;
 }
 
@@ -123,4 +128,64 @@ void freeThreadPool(ThreadPool* pool){
 
 
     return;
+}
+
+//sweeper function that loops through the hashtable checking if expired
+void* sweeper(void* arg) {
+    ThreadPool* threadpool = (ThreadPool*)arg;
+    HashTable* hashtable = threadpool->hashtable;
+
+    while (1) {
+        sleep(1);
+
+        if (pthread_mutex_lock(&hashtable->mutex) != 0) {
+            printf("Error locking mutex\n");
+            return NULL;
+        }
+
+        time_t now = time(NULL);
+
+        for (int i = 0; i < hashtable->size; i++) {
+
+            /* Remove expired entries from the head */
+            while (hashtable->buckets[i] != NULL &&
+                   hashtable->buckets[i]->expiry != 0 &&
+                   hashtable->buckets[i]->expiry < now) {
+
+                Entry* temp = hashtable->buckets[i];
+                hashtable->buckets[i] = temp->nextEntry;
+
+                free(temp->key);
+                free(temp->value);
+                free(temp);
+            }
+
+            Entry* previous = hashtable->buckets[i];
+
+            if (previous == NULL)
+                continue;
+
+            Entry* entry = previous->nextEntry;
+
+            while (entry != NULL) {
+                if (entry->expiry != 0 && entry->expiry < now) {
+                    previous->nextEntry = entry->nextEntry;
+
+                    free(entry->key);
+                    free(entry->value);
+
+                    Entry* temp = entry;
+                    entry = previous->nextEntry;
+                    free(temp);
+                } else {
+                    previous = entry;
+                    entry = entry->nextEntry;
+                }
+            }
+        }
+
+        pthread_mutex_unlock(&hashtable->mutex);
+    }
+
+    return NULL;
 }
