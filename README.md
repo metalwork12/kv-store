@@ -1,6 +1,6 @@
 # kv-store
 
-A networked, multi-threaded key-value store written in C — a small version of the same core idea behind Redis.
+A networked, multi-threaded key-value store written in C a small version of the same core idea behind Redis.
 
 ## Overview
 
@@ -56,8 +56,8 @@ kv-store/
 
 - Multi-threaded handling — a thread pool serving connections (rather than one thread per connection) (DONE)
 - Mutex protection around the hash table (DONE)(or sharded locks across buckets, for a performance/talking-point upgrade)(NOT DONE TO DO !!!!!!!!!)
-- New commands: `INCR`, `EXISTS`, `EXPIRE` (TTL)
-- A background thread that sweeps and removes expired keys
+- New commands: `INCR`, `EXISTS`, `EXPIRE` (TTL) (DONE)
+- A background thread that sweeps and removes expired keys (DONE)
 - **Milestone:** several clients hit the server simultaneously with no data corruption — demo with a small load-test script.
 
 ### Week 3 — Persistence + robustness
