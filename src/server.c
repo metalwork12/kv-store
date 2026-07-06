@@ -109,7 +109,7 @@ void handleClient(int client_fd, HashTable* hashtable){
                 }
                 else{
                     char response[1024];
-                    snprintf(response, sizeof(response), "%s\n", value);
+                    snprintf(response, sizeof(response), "%s", value);
                     send(client_fd, response, strlen(response), 0);
                     
                 }
@@ -166,6 +166,101 @@ void handleClient(int client_fd, HashTable* hashtable){
                 }
 
             }
+            else if(strcmp(first_token, "EXISTS") == 0){
+                char* exists_key = strtok(NULL, " \n");
+                
+                if(exists_key == NULL){
+                    printf("Error getting key for EXISTS command\n");
+                    send(client_fd, "-ERROR EXISTS formatting 1",strlen("-ERROR EXISTS formatting 1"), 0 );
+                    
+                    continue;
+                }
+                int exists_res = exists(hashtable, exists_key);
+                if(exists_res == 0){
+
+                    send(client_fd, "0",strlen("0"), 0 );
+                    
+                    continue;
+                }
+                else if(exists_res == 1){
+                    send(client_fd, "1", strlen("1"), 0);
+                    continue;
+                }
+                else{
+                    printf("Error completing EXIST\n");
+                    send(client_fd, "-ERROR EXIST",strlen("-ERROR EXIST"), 0 );
+                    
+                    continue;
+                }
+            }
+
+
+            else if(strcmp(first_token, "INCR") == 0){
+               char* incr_key = strtok(NULL, " \n");
+                
+                if(incr_key == NULL){
+                    printf("Error getting key for INCR command\n");
+                    send(client_fd, "-ERROR INCR formatting 1",strlen("-ERROR EXISTS formatting 1"), 0 );
+                    continue;
+                } 
+                else{
+                    int error = 0;
+                    int incr_res = incr(hashtable, incr_key, &error);
+                    if(error == 1){
+                        send(client_fd, "-ERROR INCR value not integer", strlen("-ERROR INCR value not integer"), 0);
+                
+                        continue;
+                    }
+                    char response[32];
+                    snprintf(response, sizeof(response), "%d", incr_res);
+                    send(client_fd, response, strlen(response), 0);
+                    continue;
+                
+                }
+            }
+
+            else if(strcmp(first_token, "EXPIRE") == 0){
+                char* exp_key = strtok(NULL, " ");
+                if(exp_key == NULL){
+                    printf("Error getting first token for EXPIRE command\n");
+                    send(client_fd, "-ERROR EXPIRE formatting 1",strlen("-ERROR EXPIRE formatting 1"), 0 );
+                    
+                    continue;
+                }
+                char* value = strtok(NULL, " \n");
+                if(value == NULL){
+                    printf("Error getting second token for EXPIRE command\n");
+                    send(client_fd, "-ERROR EXPIRE formatting 2",strlen("-ERROR EXPIRE formatting 2"), 0 );
+                    
+                    continue;
+                }
+
+                char* endptr;
+                long int_value = strtol(value, &endptr, 10);
+                if (*endptr != '\0') {
+                    
+                    send(client_fd, "-ERROR EXPIRE time not int",strlen("-ERROR EXPIRE time not int"), 0 );
+                    continue;
+                }
+                int exp_value = expire(hashtable, exp_key, (int) int_value);
+
+
+
+                if(exp_value == -1){
+                    printf("Error setting the key value pair\n");
+                    send(client_fd, "-ERROR setting", strlen("-ERROR setting"), 0);
+                    
+                    continue;
+                }
+                else{
+                    send(client_fd, "+OK", strlen("+OK"), 0);
+                    
+                }
+
+            }
+
+
+            
             else{
                 printf("Error Understanding the first token\n");
                 send(client_fd, "-ERROR unknown command", strlen("-ERROR unknown command"), 0);

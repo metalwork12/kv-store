@@ -1,7 +1,7 @@
     #include "hashtable.h"
     #include <stdio.h>
     #include "server.h"
-
+    #include <stdlib.h>
 
 
 

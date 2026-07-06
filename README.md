@@ -54,8 +54,8 @@ kv-store/
 
 **Goal:** multiple clients can use the server at the same time without breaking it.
 
-- Multi-threaded handling — a thread pool serving connections (rather than one thread per connection)
-- Mutex protection around the hash table (or sharded locks across buckets, for a performance/talking-point upgrade)
+- Multi-threaded handling — a thread pool serving connections (rather than one thread per connection) (DONE)
+- Mutex protection around the hash table (DONE)(or sharded locks across buckets, for a performance/talking-point upgrade)(NOT DONE TO DO !!!!!!!!!)
 - New commands: `INCR`, `EXISTS`, `EXPIRE` (TTL)
 - A background thread that sweeps and removes expired keys
 - **Milestone:** several clients hit the server simultaneously with no data corruption — demo with a small load-test script.
