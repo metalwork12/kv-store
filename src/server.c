@@ -57,6 +57,7 @@ void runLoop(int socket, HashTable* hashtable, ThreadPool* threadpool){
         submitJob(threadpool, client_fd);
 
 
+
         
         
     }
@@ -66,6 +67,7 @@ void runLoop(int socket, HashTable* hashtable, ThreadPool* threadpool){
 
 void handleClient(int client_fd, HashTable* hashtable){
      while(1){
+
             //Read in the client data
             char buffer[1024];
             int bytes_read = recv(client_fd, buffer, sizeof(buffer), 0);

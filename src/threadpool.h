@@ -18,6 +18,7 @@ typedef struct ThreadPool{
     HashTable* hashtable;
 
     pthread_t sweeper_thread;
+    pthread_t snapshot_thread ;
 
 } ThreadPool;
 
@@ -26,6 +27,6 @@ void submitJob(ThreadPool* pool, int clientSocket); //adds connection to the que
 void freeThreadPool(ThreadPool* pool); //shut down and clean up
 
 void* sweeper(void* arg); //sweeper function to check expiries.
-
+void* snapShotThread(void* arg);
 
 #endif

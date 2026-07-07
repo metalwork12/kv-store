@@ -80,6 +80,7 @@ ThreadPool* createThreadPool(HashTable* hashtable){
     //create sweeper thread
     pthread_create(&threadpool->sweeper_thread, NULL, sweeper, threadpool);
 
+    pthread_create(&threadpool->snapshot_thread, NULL,snapShotThread  ,threadpool);
 
     return threadpool;
 }
@@ -187,5 +188,35 @@ void* sweeper(void* arg) {
         pthread_mutex_unlock(&hashtable->mutex);
     }
 
+    return NULL;
+}
+
+
+//function that saves the data to the disk ever 30 seconds
+void* snapShotThread(void* arg){
+    //hardcoded data file name chnage if needed
+    char* filename = "./data_test/data.txt";
+    ThreadPool* threadpool = (ThreadPool*)arg;
+    HashTable* hashtable = threadpool->hashtable;
+
+
+    while(1){
+        //change to 30. 10 is just for testing
+        sleep(10);
+        if (pthread_mutex_lock(&hashtable->mutex) != 0) {
+            printf("Error locking mutex\n");
+            pthread_mutex_unlock(&hashtable->mutex);
+            continue;
+        }
+        int save_res = saveSnapShot(hashtable, filename);
+        if(save_res == -1){
+
+            printf("Error saving the hashtable\n");
+            pthread_mutex_unlock(&hashtable->mutex);
+            continue;
+        }
+        pthread_mutex_unlock(&hashtable->mutex);
+        
+    }
     return NULL;
 }

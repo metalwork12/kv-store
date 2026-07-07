@@ -1,8 +1,9 @@
 #include "hashtable.h"
- #include <stdio.h>
- #include <stdlib.h>   // malloc
+#include <stdio.h>
+#include <stdlib.h>   // malloc
 #include <string.h>   // memset
 #include <string.h>
+
 
 unsigned long hash(unsigned char* str){
     unsigned long hash = 5381 ;
@@ -251,6 +252,7 @@ int incr(HashTable* hashtable, char* key, int* error) {
 }
 
 int expire(HashTable* hashtable, char* key, int seconds){
+
     pthread_mutex_lock(&hashtable->mutex);
     unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
     Entry* entry = hashtable->buckets[hashed_key];
@@ -277,7 +279,32 @@ int expire(HashTable* hashtable, char* key, int seconds){
     return -1;
     }
 
+
+//err need to change to saving the key and values as just text
+int saveSnapShot(HashTable* hashtable, char* filename){
     
+    FILE *file = fopen(filename, "w");
+    if (file == NULL){
+        printf("Error opening hashtable file.\n");
+        return -1;
+    }
+
+    for(int i = 0; i < hashtable->size; i++){
+        Entry* entry = hashtable->buckets[i];
+        while(entry != NULL){
+  
+            fprintf(file,"%s %s %ld\n", entry->key, entry->value, entry->expiry); 
+            entry = entry->nextEntry;
+        }
+
+
+    }
+    fclose(file);
+
+    return 0;
+}   
+
+
 
 
 
