@@ -304,7 +304,40 @@ int saveSnapShot(HashTable* hashtable, char* filename){
     return 0;
 }   
 
+int loadSnapShot(HashTable* hashtable, char* filename){
+    FILE *file = fopen(filename, "r");
+    if (file == NULL){
+        printf("Error opening hashtable file.\n");
+        return -1;
+    }
+    char buffer[1024];
 
+
+    
+
+  	// Reading strings till fgets returns NULL
+    while (fgets(buffer, 1024, file)) {
+        char* key = strtok(buffer, " ");
+        char* value = strtok(NULL, " ");
+        char* expiry = strtok(NULL, " \n");
+        time_t expiry_time = atol(expiry);
+        printf("%s %s %s\n", key, value, expiry);
+        if(expiry_time > 0 && expiry_time <= time(NULL)) continue;
+        set(hashtable, key, value);
+        if(expiry_time > 0){
+            expire(hashtable, key, atol(expiry) - time(NULL));
+
+        }
+
+
+    }
+           
+
+    //check the first token and act accordingly
+
+
+    return 0;
+}
 
 
 

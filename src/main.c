@@ -7,10 +7,12 @@
 
     int main(){
         HashTable* table = createHashTable();
+
         if(table == NULL){
             printf("NULL HT\n");
             return -1;
         }
+        loadSnapShot(table, "./data_test/data.txt");
         ThreadPool* threadpool = createThreadPool(table);
         if(threadpool == NULL){
             printf("NULL TP\n");

@@ -59,6 +59,6 @@ int expire(HashTable* hashtable, char* key, int seconds);
 
 int saveSnapShot(HashTable* hashtable, char* filename);
 
-
+int loadSnapShot(HashTable* hashtable, char* filename);
 
 #endif
