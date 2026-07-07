@@ -50,7 +50,7 @@ kv-store/
 - A basic CLI client to send commands 
 - **Milestone:** run the server, connect with the client (or `telnet`/`nc`), and successfully `SET`/`GET` values. (DONE)
 
-### Week 2 — Concurrency
+### Week 2 — Concurrency (done)
 
 **Goal:** multiple clients can use the server at the same time without breaking it.
 

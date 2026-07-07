@@ -1,1 +1,2 @@
 name TOM 0
+foo bar\n 0

@@ -66,7 +66,9 @@ void runLoop(int socket, HashTable* hashtable, ThreadPool* threadpool){
 
 
 void handleClient(int client_fd, HashTable* hashtable){
-     while(1){
+    //current location for saving on disk
+    char* data_file = "./data_test/data.txt";
+    while(1){
 
             //Read in the client data
             char buffer[1024];
@@ -140,6 +142,7 @@ void handleClient(int client_fd, HashTable* hashtable){
                     continue;
                 }
                 else{
+                    
                     send(client_fd, "+OK", strlen("+OK"), 0);
                     
                 }
@@ -163,6 +166,7 @@ void handleClient(int client_fd, HashTable* hashtable){
                     continue;
                 }
                 else{
+                    
                     send(client_fd, "+OK", strlen("+OK"), 0);
                     
                 }
@@ -216,6 +220,7 @@ void handleClient(int client_fd, HashTable* hashtable){
                     char response[32];
                     snprintf(response, sizeof(response), "%d", incr_res);
                     send(client_fd, response, strlen(response), 0);
+                    
                     continue;
                 
                 }
@@ -255,6 +260,7 @@ void handleClient(int client_fd, HashTable* hashtable){
                     continue;
                 }
                 else{
+                    
                     send(client_fd, "+OK", strlen("+OK"), 0);
                     
                 }

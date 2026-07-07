@@ -34,6 +34,8 @@ HashTable* createHashTable(){
 
 }
 
+
+
 int set(HashTable* hashtable, char* key, char* value){
     pthread_mutex_lock(&hashtable->mutex);
     unsigned long hashed_key = hash((unsigned char*)key) % hashtable->size; //Find the hash value
@@ -50,6 +52,7 @@ int set(HashTable* hashtable, char* key, char* value){
         entry->nextEntry = NULL;
         hashtable->buckets[hashed_key] = entry;
         pthread_mutex_unlock(&hashtable->mutex);
+        
         return 0;
     }
     else{
