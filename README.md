@@ -21,6 +21,7 @@ The main goal of this project is to develop a greater understanding of networkin
 - **Environment:** developed on WSL (Ubuntu), compiled with `gcc`
 
 ## Project structure
+```
 kv-store/
 ├── README.md
 ├── Makefile
@@ -35,7 +36,7 @@ kv-store/
 │   └── (test files, later)
 └── client/
     └── client.c        (simple CLI client to talk to your server)
-
+```
 
 ## Project plan
 
