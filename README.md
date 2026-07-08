@@ -58,7 +58,7 @@ kv-store/
 
 - **EXPIRE** command takes two arguments: key and expiry. The entry corresponding to the key argument has its expiry value set to the expiry argument plus the current POSIX time, e.g. "EXPIRE age 1000". This command is supported by the sweeper helper function that loops through the entries of the hash table and removes any entries once their expiry time has elapsed.
 
-- **AUTH** command takes one argument: server_password. This value is checked and if matches the set password the user is authenticated for that session and is able to run commands, if the password is wrong an error message is send to the user and they are unable to run commands.
+- **AUTH** command takes one argument: server_password. This value is checked and if matches the set password the user is authenticated for that session and is able to run commands, if the password is wrong an error message is send to the user and they are unable to run commands. e.g. "AUTH password".
 
 
 ## Build and Run
@@ -120,7 +120,7 @@ Testing was completed using a bash script where 10 clients connected at the same
 
 - **CLI Improvements (command history, autocomplete)**
 
-- **Refactoring code (server.c handel client function (replace with lookup table and function pointers?))**
+- **Refactoring code (server.c handel client function (replace with lookup table and function pointers for each command?))**
 
 ## Author
 
