@@ -112,8 +112,6 @@ Testing was completed using a bash script where 10 clients connected at the same
 
 - **AUTH command (password protection)**
 
-- **Multi-key DEL command**
-
 - **RESP protocol support**
 
 - **TTL command (time feft until expiry)**
