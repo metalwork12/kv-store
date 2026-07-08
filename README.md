@@ -6,7 +6,7 @@ A networked key-value store written in C. Clients are able to connect over TCP a
 
 This project is a server program that stores data in memory and lets multiple clients connect to it over the network at the same time to read and write that data. It's built from scratch in C using raw sockets. The project stores key-value pairs as entries in a hash table, by hashing the key's value, and assigning it a bucket in the data store. If the result of two hashed keys are the same, chaining is used to overcome collisions.
 
-The main goal of this project is to develop a greater understanding of networking and backend systems by developing an system from scratch.
+The main goal of this project is to develop a greater understanding of networking and backend systems by developing a system from scratch.
 
 - **Networking** — how data moves over TCP, handling multiple connections, dealing with partial reads/writes
 - **Concurrency** — multiple threads safely accessing shared data without corrupting it
@@ -50,7 +50,7 @@ kv-store/
 
 - **GET** command takes one argument: key. This key is then used to search the data store, if an entry with a matching key is found its value is returned. If no matching entry is found an error is returned, e.g. "GET name".
 
-- **DEL** command takes one argument: key. The delete command then searches for an entry matching the entered key and safely deletes it, dealing with any linked list issues, e.g. "DEL name".
+- **DEL** command takes any number of argument: key. The delete command then searches for the entries matching the entered keys and safely deletes them, dealing with any linked list issues, e.g. "DEL name1 name2 name3".
 
 - **EXISTS** command takes one argument: key. The data store is searched for the corresponding key, 1 is returned if the key exists and 0 is returned if it does not, e.g. "EXISTS name".
 
@@ -116,13 +116,13 @@ Testing was completed using a bash script where 10 clients connected at the same
 
 - **RESP protocol support**
 
-- **TTL command (time lest till expiry)**
+- **TTL command (time feft until expiry)**
 
-- **Persistance improvements (such as AOF (append-only file))**
+- **Persistence improvements (such as AOF (append-only file))**
 
 - **CLI Improvements (command history, autocomplete)**
 
 
 ## Author
 
-Tom Walker — [GitHub](https://github.com/) · [LinkedIn](https://linkedin.com/)
+Tom Walker — [GitHub](https://github.com/metalwork12) · [LinkedIn](https://www.linkedin.com/in/tom-walker-872699304/)

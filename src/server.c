@@ -149,6 +149,7 @@ void handleClient(int client_fd, HashTable* hashtable){
 
 
             }
+            //Single argument delete
             else if(strcmp(first_token, "DEL") == 0){
                 char* del_key = strtok(NULL, " \n");
                 
@@ -158,18 +159,18 @@ void handleClient(int client_fd, HashTable* hashtable){
                     
                     continue;
                 }
-                int del_res = delete(hashtable, del_key);
-                if(del_res == -1){
-                    printf("Error deleting key/value\n");
-                    send(client_fd, "-ERROR DEL",strlen("-ERROR DEL"), 0 );
-                    
-                    continue;
+                int count = 0;
+                while(del_key != NULL){
+                    int del_res = delete(hashtable, del_key);
+                    if(del_res != -1){
+                        count++;
+                    }
+                    del_key = strtok(NULL, " \n");
                 }
-                else{
-                    
-                    send(client_fd, "+OK", strlen("+OK"), 0);
-                    
-                }
+                char response[32];
+                snprintf(response, sizeof(response), "%d", count);
+                send(client_fd, response, strlen(response), 0);
+
 
             }
             else if(strcmp(first_token, "EXISTS") == 0){
