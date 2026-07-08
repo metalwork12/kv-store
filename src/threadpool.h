@@ -20,9 +20,11 @@ typedef struct ThreadPool{
     pthread_t sweeper_thread;
     pthread_t snapshot_thread ;
 
+    char* server_password;
+
 } ThreadPool;
 
-ThreadPool* createThreadPool(HashTable* hashtable); //create and initialise the thread pool
+ThreadPool* createThreadPool(HashTable* hashtable, char* server_password); //create and initialise the thread pool
 void submitJob(ThreadPool* pool, int clientSocket); //adds connection to the queue
 void freeThreadPool(ThreadPool* pool); //shut down and clean up
 

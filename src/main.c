@@ -6,6 +6,9 @@
 
 
     int main(){
+        char* password = "password";
+
+
         HashTable* table = createHashTable();
 
         if(table == NULL){
@@ -13,7 +16,7 @@
             return -1;
         }
         loadSnapShot(table, "./data_test/data.txt");
-        ThreadPool* threadpool = createThreadPool(table);
+        ThreadPool* threadpool = createThreadPool(table, password);
         if(threadpool == NULL){
             printf("NULL TP\n");
             return -1;

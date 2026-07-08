@@ -36,14 +36,16 @@ void* workerFunction(void* arg){
         threadpool->queue[threadpool->count-1] = 0;
         threadpool->count--;
         pthread_mutex_unlock(&threadpool->mutex);
-        handleClient(socket, threadpool->hashtable);
+        handleClient(socket, threadpool->hashtable, threadpool->server_password);
     }
 }
 
 
 
 
-ThreadPool* createThreadPool(HashTable* hashtable){
+ThreadPool* createThreadPool(HashTable* hashtable, char* password){
+
+
     //creating threadpool and checking its worked
     ThreadPool* threadpool = (ThreadPool*) malloc(sizeof(ThreadPool));
     if(threadpool == NULL){
@@ -56,6 +58,7 @@ ThreadPool* createThreadPool(HashTable* hashtable){
     threadpool->capacity = MAX_SIZE;
     threadpool->count = 0;
     threadpool->shutdown = 0;
+    threadpool->server_password = password;
     int set_mutex = pthread_mutex_init(&threadpool->mutex, NULL);
     if(set_mutex !=0){
         printf("ERROR setting mutex\n");

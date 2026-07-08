@@ -65,7 +65,10 @@ void runLoop(int socket, HashTable* hashtable, ThreadPool* threadpool){
 }
 
 
-void handleClient(int client_fd, HashTable* hashtable){
+void handleClient(int client_fd, HashTable* hashtable, char* server_password){
+
+    int authenticated = 0;
+
     //current location for saving on disk
     char* data_file = "./data_test/data.txt";
     while(1){
@@ -90,6 +93,30 @@ void handleClient(int client_fd, HashTable* hashtable){
 
             //check the first token and act accordingly
             char* first_token = strtok(buffer, " ");
+            //check for if AUTH command else check if authenticated
+            if(strcmp(first_token, "AUTH") == 0){
+                char* next_token = strtok(NULL, " \n");
+                if(next_token == NULL){
+                    send(client_fd, "-ERROR with AUTH format", strlen("-ERROR with AUTH format"), 0);
+                    continue;
+                }
+                else{
+                    if(strcmp(server_password, next_token) == 0){
+                        authenticated =1;
+                        send(client_fd, "+Password correct", strlen("+Password correct"), 0);
+                        continue;
+                    }
+                    else{
+                        send(client_fd, "-ERROR Password incorrect", strlen("-ERROR Password incorrect"), 0);
+                        continue;
+                    }
+                }
+            }
+            else if(authenticated == 0){
+                send(client_fd, "-ERROR not authenticated", strlen("-ERROR not authenticated"), 0);
+                
+                continue;
+            }
             if(first_token == NULL){
                 printf("NULL token\n");
                 send(client_fd, "-ERROR empty command", strlen("-ERROR empty command"), 0);

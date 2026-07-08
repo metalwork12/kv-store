@@ -6,6 +6,6 @@ int setUpServer(int portNumber);
 
 
 void runLoop(int socket, HashTable* hashtable, ThreadPool* threadpool);
-void handleClient(int client_fd, HashTable* hashtable);
+void handleClient(int client_fd, HashTable* hashtable, char* server_password);
 
 #endif
