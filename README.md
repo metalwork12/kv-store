@@ -1,12 +1,12 @@
 # kv-store
 
-A networked, multi-threaded key-value store written in C a small version of the same core idea behind Redis.
+A networked key-value store written in C. Clients are able to connect over TCP and can store and manipulate key-value pairs. Data is stored to the disk regularly and loaded on start up so that data persists over sessions. Concurrent clients are handled via a threadpool. Key-value pairs also have an expiry time value, that when met is cleaned up automatically.
 
 ## Overview
 
-This project is a server program that stores data in memory (like a giant dictionary) and lets multiple clients connect to it over the network at the same time to read and write that data. It's built from scratch in C using raw sockets — no frameworks, no external libraries for the networking or concurrency parts.
+This project is a server program that stores data in memory and lets multiple clients connect to it over the network at the same time to read and write that data. It's built from scratch in C using raw sockets.
 
-The point of this project isn't to recreate Redis. It's to build hands-on understanding of three things that come up constantly in backend/systems interviews:
+The main goal of this project is to develop a greater understanding of networking and backend systems by developing an system from scratch.
 
 - **Networking** — how data moves over TCP, handling multiple connections, dealing with partial reads/writes
 - **Concurrency** — multiple threads safely accessing shared data without corrupting it
@@ -17,8 +17,9 @@ The point of this project isn't to recreate Redis. It's to build hands-on unders
 - **Language:** C
 - **Networking:** POSIX sockets (`socket()`, `bind()`, `listen()`, `accept()`)
 - **Concurrency:** POSIX threads (`pthread`)
-- **Persistence:** custom binary/JSON snapshotting to disk
+- **Persistence:** snapshotting to disk
 - **Environment:** developed on WSL (Ubuntu), compiled with `gcc`
+
 ## Project structure
 kv-store/
 ├── README.md
@@ -30,8 +31,6 @@ kv-store/
 │   ├── hashtable.h     (hash table's public interface)
 │   ├── server.c        (socket setup, accept loop)
 │   ├── server.h
-│   ├── protocol.c      (parsing commands like "SET key value")
-│   └── protocol.h
 ├── tests/
 │   └── (test files, later)
 └── client/
