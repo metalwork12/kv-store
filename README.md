@@ -102,56 +102,26 @@ Average Latency: 0.1185 (milliseconds)
 Testing was completed using a bash script where 10 clients connected at the same time each setting a key-value pair and incrementing the value. This test was ran multiple times and confirmed that under concurrent loads the system was able to handle requests without corruption.
 
 
-## Project plan
+## What's Next?
 
-### Week 1 — Core engine + single-client networking
+- **Replication**
 
-**Goal:** a working server that one client can talk to.
+- **Pub/Sub**
 
-- In-memory hash table supporting `SET key value`, `GET key`, `DEL key` (DONE).
-- Simple text-based protocol over TCP (plain-text commands, not full RESP)
-- Single-threaded TCP server (`socket → bind → listen → accept → recv/send`) (DONE)
-- A basic CLI client to send commands 
-- **Milestone:** run the server, connect with the client (or `telnet`/`nc`), and successfully `SET`/`GET` values. (DONE)
+- **Fine-grained locking (per-bucket mutex instead of global lock)**
 
-### Week 2 — Concurrency (done)
+- **AUTH command (password protection)**
 
-**Goal:** multiple clients can use the server at the same time without breaking it.
+- **Multi-key DEL command**
 
-- Multi-threaded handling — a thread pool serving connections (rather than one thread per connection) (DONE)
-- Mutex protection around the hash table (DONE)(or sharded locks across buckets, for a performance/talking-point upgrade)(NOT DONE TO DO !!!!!!!!!)
-- New commands: `INCR`, `EXISTS`, `EXPIRE` (TTL) (DONE)
-- A background thread that sweeps and removes expired keys (DONE)
-- **Milestone:** several clients hit the server simultaneously with no data corruption — demo with a small load-test script.
+- **RESP protocol support**
 
-### Week 3 — Persistence + robustness
+- **TTL command (time lest till expiry)**
 
-**Goal:** the server survives a restart, and handles bad input gracefully.
+- **Persistance improvements (such as AOF (append-only file))**
 
-- Periodic snapshotting — dump the in-memory store to disk, reload on startup
-- (Optional, stretch) append-only log (AOF-style) for durability between snapshots
-- Robust handling of malformed commands, client disconnects, and partial `recv()`/`send()` calls
-- **Milestone:** kill the server, restart it, and confirm the data is still there.
+- **CLI Improvements (command history, autocomplete)**
 
-### Week 4 — Polish + one standout feature
-
-**Goal:** the project looks and feels like a finished, professional piece of software.
-
-Pick **one** feature to go deep on:
-- **Benchmarking** — load tester measuring throughput/latency, with a results graph for the README
-- **Replication** — a primary server and a read-only replica that mirrors writes
-- **Pub/sub** — `SUBSCRIBE`/`PUBLISH` channel support
-
-Plus:
-- A clear, well-written README (this file) with an architecture diagram and key design decisions
-- Clean, readable commit history on GitHub
-
-## Status
-
-- [ ] Week 1 — Core engine + single-client networking
-- [ ] Week 2 — Concurrency
-- [ ] Week 3 — Persistence + robustness
-- [ ] Week 4 — Polish + standout feature
 
 ## Author
 
