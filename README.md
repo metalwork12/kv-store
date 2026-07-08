@@ -58,6 +58,50 @@ kv-store/
 
 - **EXPIRE** command takes two arguments: key and expiry. The entry corresponding to the key argument has its expiry value set to the expiry argument plus the current POSIX time, e.g. "EXPIRE age 1000". This command is supported by the sweeper helper function that loops through the entries of the hash table and removes any entries once their expiry time has elapsed.
 
+
+## Build and Run
+
+**Requirements:** gcc, make, WSL or Linux
+
+**Build:**
+```bash
+make server
+make client
+```
+
+**Run the server:**
+```bash
+./server
+```
+
+**Connect with the client:**
+```bash
+./kv-client
+```
+
+The server listens on port 6380 by default.
+
+## Benchmarking
+
+Environment: WSL2, Ubuntu, Windows 11
+
+Testing on both the SET and GET commands was completed by sending 100000 requests of each command. Both commands performed similarly as shown below.
+
+- **SET Benchmarking** 
+Time: 11.8527 (seconds) 
+Requests per second: 8436.866 
+Average Latency: 0.1185 (milliseconds)
+
+- **GET Benchmarking**
+Time: 11.8520 (seconds)
+Requests per second: 8437.3738
+Average Latency: 0.1185 (milliseconds)
+
+### Concurrent Load Test 
+
+Testing was completed using a bash script where 10 clients connected at the same time each setting a key-value pair and incrementing the value. This test was ran multiple times and confirmed that under concurrent loads the system was able to handle requests without corruption.
+
+
 ## Project plan
 
 ### Week 1 — Core engine + single-client networking
