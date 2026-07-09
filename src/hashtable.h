@@ -54,6 +54,8 @@ int incr(HashTable* hashtable, char* key, int* error);
 
 int expire(HashTable* hashtable, char* key, int seconds);
 
+int ttl(HashTable* hashtable, char* key);
+
 
 
 

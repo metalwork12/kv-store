@@ -195,7 +195,6 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                     del_key = strtok(NULL, " \n");
                 }
                 char response[32];
-                snprintf(response, sizeof(response), "%d", count);
                 send(client_fd, response, strlen(response), 0);
 
 
@@ -246,11 +245,25 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                         continue;
                     }
                     char response[32];
-                    snprintf(response, sizeof(response), "%d", incr_res);
                     send(client_fd, response, strlen(response), 0);
                     
                     continue;
                 
+                }
+            }
+            else if(strcmp(first_token, "TTL") == 0){
+                char* ttl_key = strtok(NULL, " \n");
+                if(ttl_key == NULL){
+                    printf("Error getting first token for TTL command\n");
+                    send(client_fd, "-ERROR TTL formatting 1",strlen("-ERROR TTL formatting 1"), 0 );
+                    
+                    continue;
+                }
+                else{
+                    int TTL_res = ttl(hashtable, ttl_key);
+                    char response[32];
+                    snprintf(response, sizeof(response), "%d", TTL_res);
+                    send(client_fd, response, strlen(response), 0);
                 }
             }
 
@@ -294,6 +307,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 }
 
             }
+
 
 
             

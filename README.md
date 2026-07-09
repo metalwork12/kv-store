@@ -60,6 +60,8 @@ kv-store/
 
 - **AUTH** command takes one argument: server_password. This value is checked and if matches the set password the user is authenticated for that session and is able to run commands, if the password is wrong an error message is send to the user and they are unable to run commands. e.g. "AUTH password".
 
+- **TTL** command takes one argument: key. This value is used to search the entries and returns the time-to-live for the entry. Handles missing TTL, 0 TTL and a set TTL. Set TTLs returns the time until it exires in seconds. e.g. "TTL key"
+
 
 ## Build and Run
 
@@ -114,11 +116,9 @@ Testing was completed using a bash script where 10 clients connected at the same
 
 - **RESP protocol support**
 
-- **TTL command (time feft until expiry)**
-
 - **Persistence improvements (such as AOF (append-only file))**
 
-- **CLI Improvements (command history, autocomplete)**
+- **CLI Improvements (command history, autocomplete?)**
 
 - **Refactoring code (server.c handel client function (replace with lookup table and function pointers for each command?))**
 

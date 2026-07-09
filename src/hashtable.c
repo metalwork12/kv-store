@@ -343,6 +343,50 @@ int loadSnapShot(HashTable* hashtable, char* filename){
 }
 
 
+//need to add checks to make sure it doesnt get a null value or a 0 value
+int ttl(HashTable* hashtable, char* key){
+    pthread_mutex_lock(&hashtable->mutex);
+    unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
+    Entry* entry = hashtable->buckets[hashed_key];
+    if(entry == NULL){
+        pthread_mutex_unlock(&hashtable->mutex);
+        return -1;
+    }
+    if(strcmp(key, entry->key) == 0){
+        printf("DEBUG: expiry=%ld now=%ld\n", entry->expiry, time(NULL));
+        pthread_mutex_unlock(&hashtable->mutex);
+        if(entry->expiry == 0){
+            return -1;
+        }
+        else{
+            printf("DEBUG: expiry=%ld now=%ld\n", entry->expiry, time(NULL));
+            return entry->expiry - time(NULL);
+        }
+    }
+    else{
+        while(entry->nextEntry != NULL){
+            entry = entry->nextEntry;
+            if(strcmp(entry->key, key) == 0){
+                printf("DEBUG: expiry=%ld now=%ld\n", entry->expiry, time(NULL));
+                pthread_mutex_unlock(&hashtable->mutex);
+                if(entry->expiry == 0){
+                    return -1;
+                }
+                else{
+                    printf("DEBUG: expiry=%ld now=%ld\n", entry->expiry, time(NULL));
+                    return entry->expiry - time(NULL);
+                }
+            }
+        }
+    }
+    pthread_mutex_unlock(&hashtable->mutex);
+    return -1;
+}
+
+
+
+
+
 
 
 
