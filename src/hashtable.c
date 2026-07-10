@@ -127,8 +127,9 @@ int delete(HashTable* hashtable, char* key){
     pthread_mutex_lock(&hashtable->mutexes[hashed_key]);
     Entry* entry = hashtable->buckets[hashed_key];
     if (entry == NULL) { 
-        pthread_mutex_unlock(&hashtable->mutexes[hashed_key])
-        return -1; }
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
+        return -1; 
+    }
     if(strcmp(entry->key, key) ==0){
         hashtable->buckets[hashed_key] = entry->nextEntry;
         free(entry->key);
@@ -177,28 +178,29 @@ void freeHashTable(HashTable* hashtable){
 
 //EXISTS returns 0 if not found and 1 if it does
 int exists(HashTable* hashtable, char* key){
-    pthread_mutex_lock(&hashtable->mutex);
+    
     unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
+    pthread_mutex_lock(&hashtable->mutexes[hashed_key]);
     Entry* entry = hashtable->buckets[hashed_key];
     if(entry == NULL){
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return 0;   
     }
     if(strcmp(entry->key, key) == 0){
         //found
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return 1;
     }
     while(entry->nextEntry!= NULL){
         entry = entry->nextEntry;
         if(strcmp(entry->key, key) ==0){
-            pthread_mutex_unlock(&hashtable->mutex);
+            pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
             return 1;
         }
         
     }
 
-    pthread_mutex_unlock(&hashtable->mutex);
+    pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
     return 0;
 }
 
@@ -209,9 +211,10 @@ int exists(HashTable* hashtable, char* key){
 //if error *error = -1 retun 0  
 
 int incr(HashTable* hashtable, char* key, int* error) {
-    pthread_mutex_lock(&hashtable->mutex);
 
     unsigned long hashed_key = hash((unsigned char*)key) % hashtable->size;
+    pthread_mutex_lock(&hashtable->mutexes[hashed_key]);
+
     Entry* entry = hashtable->buckets[hashed_key];
 
     // Search for the key
@@ -223,7 +226,7 @@ int incr(HashTable* hashtable, char* key, int* error) {
             // Value isn't an integer
             if (*endptr != '\0') {
                 *error = 1;
-                pthread_mutex_unlock(&hashtable->mutex);
+                pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
                 return 0;
             }
 
@@ -237,7 +240,7 @@ int incr(HashTable* hashtable, char* key, int* error) {
             entry->value = strdup(buffer);
 
             *error = 0;
-            pthread_mutex_unlock(&hashtable->mutex);
+            pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
             return (int)value;
         }
 
@@ -248,7 +251,7 @@ int incr(HashTable* hashtable, char* key, int* error) {
     Entry* new_entry = malloc(sizeof(Entry));
     if (new_entry == NULL) {
         *error = -1;
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return 0;
     }
 
@@ -259,22 +262,23 @@ int incr(HashTable* hashtable, char* key, int* error) {
     hashtable->buckets[hashed_key] = new_entry;
 
     *error = 0;
-    pthread_mutex_unlock(&hashtable->mutex);
+    pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
     return 1;
 }
 
 int expire(HashTable* hashtable, char* key, int seconds){
 
-    pthread_mutex_lock(&hashtable->mutex);
+  
     unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
+    pthread_mutex_lock(&hashtable->mutexes[hashed_key]);
     Entry* entry = hashtable->buckets[hashed_key];
     if(entry == NULL){
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return -1;
     }
     if(strcmp(key, entry->key) == 0){
         entry->expiry = time(NULL) + seconds;
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return 0;
     }
     else{
@@ -282,12 +286,12 @@ int expire(HashTable* hashtable, char* key, int seconds){
             entry = entry->nextEntry;
             if(strcmp(entry->key, key) == 0){
                 entry->expiry = time(NULL) + seconds;
-                pthread_mutex_unlock(&hashtable->mutex);
+                pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
                 return 0;
             }
         }
     }
-    pthread_mutex_unlock(&hashtable->mutex);
+    pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
     return -1;
     }
 
@@ -302,12 +306,14 @@ int saveSnapShot(HashTable* hashtable, char* filename){
     }
 
     for(int i = 0; i < hashtable->size; i++){
+        pthread_mutex_lock(&hashtable->mutexes[i]);
         Entry* entry = hashtable->buckets[i];
         while(entry != NULL){
   
             fprintf(file,"%s %s %ld\n", entry->key, entry->value, entry->expiry); 
             entry = entry->nextEntry;
         }
+        pthread_mutex_unlock(&hashtable->mutexes[i]);
 
 
     }
@@ -354,16 +360,17 @@ int loadSnapShot(HashTable* hashtable, char* filename){
 
 //need to add checks to make sure it doesnt get a null value or a 0 value
 int ttl(HashTable* hashtable, char* key){
-    pthread_mutex_lock(&hashtable->mutex);
+
     unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
+    pthread_mutex_lock(&hashtable->mutexes[hashed_key]);    
     Entry* entry = hashtable->buckets[hashed_key];
     if(entry == NULL){
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return -1;
     }
     if(strcmp(key, entry->key) == 0){
         printf("DEBUG: expiry=%ld now=%ld\n", entry->expiry, time(NULL));
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         if(entry->expiry == 0){
             return -1;
         }
@@ -377,7 +384,7 @@ int ttl(HashTable* hashtable, char* key){
             entry = entry->nextEntry;
             if(strcmp(entry->key, key) == 0){
                 printf("DEBUG: expiry=%ld now=%ld\n", entry->expiry, time(NULL));
-                pthread_mutex_unlock(&hashtable->mutex);
+                pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
                 if(entry->expiry == 0){
                     return -1;
                 }
@@ -388,7 +395,7 @@ int ttl(HashTable* hashtable, char* key){
             }
         }
     }
-    pthread_mutex_unlock(&hashtable->mutex);
+    pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
     return -1;
 }
 
