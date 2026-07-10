@@ -39,13 +39,14 @@ HashTable* createHashTable(){
 
 
 int set(HashTable* hashtable, char* key, char* value){
-    pthread_mutex_lock(&hashtable->mutex);
+
     unsigned long hashed_key = hash((unsigned char*)key) % hashtable->size; //Find the hash value
+    pthread_mutex_lock(&hashtable->mutexes[hashed_key]);
 
     if(hashtable->buckets[hashed_key] == NULL){
         Entry* entry = (Entry*) malloc(sizeof(Entry));
         if(entry == NULL){
-            pthread_mutex_unlock(&hashtable->mutex);
+            pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
             return -1;
         }
         entry->key = strdup(key);
@@ -53,7 +54,7 @@ int set(HashTable* hashtable, char* key, char* value){
         entry->expiry = 0;
         entry->nextEntry = NULL;
         hashtable->buckets[hashed_key] = entry;
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         
         return 0;
     }
@@ -62,7 +63,7 @@ int set(HashTable* hashtable, char* key, char* value){
         if(strcmp(current_ent->key, key) == 0){
             free(current_ent->value);
             current_ent->value = strdup(value);
-            pthread_mutex_unlock(&hashtable->mutex);
+            pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
             return 0;
         }
         while(current_ent->nextEntry != NULL){
@@ -70,14 +71,14 @@ int set(HashTable* hashtable, char* key, char* value){
             if(strcmp(current_ent->key, key) == 0){
                 free(current_ent->value);
                 current_ent->value = strdup(value);
-                pthread_mutex_unlock(&hashtable->mutex);
+                pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
                 return 0;
             }
             
         }
         Entry* entry = (Entry*) malloc(sizeof(Entry));
         if(entry == NULL){
-            pthread_mutex_unlock(&hashtable->mutex);
+            pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
             return -1;
         }
         entry->key = strdup(key);
@@ -86,50 +87,54 @@ int set(HashTable* hashtable, char* key, char* value){
         entry->expiry = 0;
         
         current_ent->nextEntry = entry;
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return 0;
     }
     
 }
 
 char* get(HashTable* hashtable, char* key){
-    pthread_mutex_lock(&hashtable->mutex);
     unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
+    pthread_mutex_lock(&hashtable->mutexes[hashed_key]);
+
     Entry* entry = hashtable->buckets[hashed_key];
     if(entry == NULL){
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return NULL;
     }
     if(strcmp(key, entry->key) == 0){
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return entry->value;
     }
     else{
         while(entry->nextEntry != NULL){
             entry = entry->nextEntry;
             if(strcmp(entry->key, key) == 0){
-                pthread_mutex_unlock(&hashtable->mutex);
+                pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
                 return entry->value;
             }
         }
     }
-    pthread_mutex_unlock(&hashtable->mutex);
+    pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
     return NULL;
     }
 
 //Check current entry if key == key then remove and entry = next
 //after that while next 
 int delete(HashTable* hashtable, char* key){
-    pthread_mutex_lock(&hashtable->mutex);
+    
     unsigned long hashed_key= hash((unsigned char*)key)% hashtable->size;
+    pthread_mutex_lock(&hashtable->mutexes[hashed_key]);
     Entry* entry = hashtable->buckets[hashed_key];
-    if (entry == NULL) { return -1; }
+    if (entry == NULL) { 
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key])
+        return -1; }
     if(strcmp(entry->key, key) ==0){
         hashtable->buckets[hashed_key] = entry->nextEntry;
         free(entry->key);
         free(entry->value);
         free(entry);
-        pthread_mutex_unlock(&hashtable->mutex);
+        pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         return 0;
     }
     Entry* previous = entry;
@@ -141,13 +146,13 @@ int delete(HashTable* hashtable, char* key){
             free(entry->value);
     
             free(entry);
-            pthread_mutex_unlock(&hashtable->mutex);
+            pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
             return 0;
         }
         previous = entry;
         entry= entry->nextEntry;
     }
-    pthread_mutex_unlock(&hashtable->mutex);
+    pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
     return -1;
 }
 
