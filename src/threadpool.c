@@ -142,14 +142,15 @@ void* sweeper(void* arg) {
     while (1) {
         sleep(1);
 
-        if (pthread_mutex_lock(&hashtable->mutex) != 0) {
-            printf("Error locking mutex\n");
-            return NULL;
-        }
+
 
         time_t now = time(NULL);
 
         for (int i = 0; i < hashtable->size; i++) {
+            if (pthread_mutex_lock(&hashtable->mutexes[i]) != 0) {
+                printf("Error locking mutex\n");
+                return NULL;
+            }
 
             /* Remove expired entries from the head */
             while (hashtable->buckets[i] != NULL &&
@@ -166,8 +167,10 @@ void* sweeper(void* arg) {
 
             Entry* previous = hashtable->buckets[i];
 
-            if (previous == NULL)
+            if (previous == NULL){
+                pthread_mutex_unlock(&hashtable->mutexes[i]);
                 continue;
+            }
 
             Entry* entry = previous->nextEntry;
 
@@ -186,9 +189,11 @@ void* sweeper(void* arg) {
                     entry = entry->nextEntry;
                 }
             }
+            
+            pthread_mutex_unlock(&hashtable->mutexes[i]);
         }
 
-        pthread_mutex_unlock(&hashtable->mutex);
+        
     }
 
     return NULL;
@@ -206,19 +211,13 @@ void* snapShotThread(void* arg){
     while(1){
         //change to 30. 10 is just for testing
         sleep(10);
-        if (pthread_mutex_lock(&hashtable->mutex) != 0) {
-            printf("Error locking mutex\n");
-            pthread_mutex_unlock(&hashtable->mutex);
-            continue;
-        }
+
         int save_res = saveSnapShot(hashtable, filename);
         if(save_res == -1){
 
             printf("Error saving the hashtable\n");
-            pthread_mutex_unlock(&hashtable->mutex);
             continue;
         }
-        pthread_mutex_unlock(&hashtable->mutex);
         
     }
     return NULL;
