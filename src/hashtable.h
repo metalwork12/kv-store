@@ -17,7 +17,8 @@ typedef struct Entry{
 typedef struct HashTable{
     int size;
     Entry* buckets[1024];
-    pthread_mutex_t mutex;
+
+    pthread_mutex_t mutexes[1024];
 
 
 } HashTable;

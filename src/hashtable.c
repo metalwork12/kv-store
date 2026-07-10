@@ -26,8 +26,10 @@ HashTable* createHashTable(){
     hashtable->size = 1024;
     
     memset(hashtable-> buckets, 0, sizeof(hashtable-> buckets));
-    pthread_mutex_init(&hashtable->mutex, NULL);
 
+    for(int i = 0; i < hashtable->size; i++){
+        pthread_mutex_init(&hashtable->mutexes[i], NULL);
+    }
     
     return hashtable;
 
@@ -159,7 +161,9 @@ void freeHashTable(HashTable* hashtable){
      
             free(entry);
             entry = next;
+            
         }
+        pthread_mutex_destroy(&hashtable->mutexes[i]);
     }
 
     free(hashtable);
