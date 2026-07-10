@@ -30,7 +30,8 @@ int set_test(){
     char output_buffer[256];
     //SET input
     char* input_buffer = "SET foo bar\n"; 
-
+    send(client_fd, "AUTH password\n", strlen("AUTH password\n"), 0);
+    recv(client_fd, output_buffer, sizeof(output_buffer), 0);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
     for(int i = 0; i < N_REQUESTS; i++){
@@ -72,7 +73,8 @@ int get_test(){
     char* input_buffer = "SET foo bar\n"; 
     //GET input 
     char* get_input_buffer = "GET foo";
-
+    send(client_fd, "AUTH password\n", strlen("AUTH password\n"), 0);
+    recv(client_fd, output_buffer, sizeof(output_buffer), 0);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
     for(int i = 0; i < N_REQUESTS; i++){
