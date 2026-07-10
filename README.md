@@ -4,7 +4,7 @@ A networked key-value store written in C. Clients are able to connect over TCP a
 
 ## Overview
 
-This project is a server program that stores data in memory and lets multiple clients connect to it over the network at the same time to read and write that data. It's built from scratch in C using raw sockets. The project stores key-value pairs as entries in a hash table, by hashing the key's value, and assigning it a bucket in the data store. If the result of two hashed keys are the same, chaining is used to overcome collisions.
+This project is a server program that stores data in memory and lets multiple clients connect to it over the network at the same time to read and write that data. It's built from scratch in C using raw sockets. The project stores key-value pairs as entries in a hash table, by hashing the key's value, and assigning it a bucket in the data store. If the result of two hashed keys are the same, chaining is used to overcome collisions. Each bucket in the hash table has its own mutex allowing for concurrent operations on different buckets to run in parallel.
 
 The main goal of this project is to develop a greater understanding of networking and backend systems by developing a system from scratch.
 
@@ -112,7 +112,6 @@ Testing was completed using a bash script where 10 clients connected at the same
 
 - **Pub/Sub**
 
-- **Fine-grained locking (per-bucket mutex instead of global lock)**
 
 - **RESP protocol support**
 
