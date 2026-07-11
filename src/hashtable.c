@@ -339,7 +339,7 @@ int loadSnapShot(HashTable* hashtable, char* filename){
         char* value = strtok(NULL, " ");
         char* expiry = strtok(NULL, " \n");
         time_t expiry_time = atol(expiry);
-        printf("%s %s %s\n", key, value, expiry);
+        
         if(expiry_time > 0 && expiry_time <= time(NULL)) continue;
         set(hashtable, key, value);
         if(expiry_time > 0){

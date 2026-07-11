@@ -5,29 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
-
-
-char* convertToRESP(char* buffer){
-
-    char* tokens[64];
-    int n = 0;
-    tokens[0] = strtok(buffer, " \n");
-    while(tokens[n] != NULL){
-        n++;
-        tokens[n] = strtok(NULL, " \n");
-    }
-
-    char out[1024];
-    int offset = 0;
-    offset += snprintf(out + offset, sizeof(out) - offset, "*%d\r\n", n);
-    for(int i = 0; i < 64; i++){
-        if(tokens[i] == NULL){
-            break;
-        }
-        offset+=snprintf(out+offset, sizeof(out) - offset, "$%zu\r\n%s\r\n", strlen(tokens[i]), tokens[i]);
-    }
-    return strdup(out);
-}
+#include "parser.h"
 
 
 int main(){
@@ -58,9 +36,8 @@ int main(){
         }
         char* resp = convertToRESP(input_buffer);
         printf("Sending: %s\n", resp);
-        //send(client_fd, resp, strlen(resp), 0);
+        send(client_fd, resp, strlen(resp), 0);
         free(resp);
-        send(client_fd, input_buffer, strlen(input_buffer), 0);
         int bytes_read  = recv(client_fd, output_buffer, sizeof(output_buffer), 0);
         
         if(bytes_read == -1){

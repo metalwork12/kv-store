@@ -5,7 +5,7 @@
 #include <unistd.h>        // close()
 #include <sys/socket.h>    // socket(), bind(), listen(), accept()
 #include <netinet/in.h>    // struct sockaddr_in, INADDR_ANY
-
+#include "parser.h"
 
 
 int setUpServer(int portNumber){
@@ -92,10 +92,11 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
            
 
             //check the first token and act accordingly
-            char* first_token = strtok(buffer, " ");
+            Command command = parseRESP(buffer);
+            char* first_token = command.args[0];
             //check for if AUTH command else check if authenticated
             if(strcmp(first_token, "AUTH") == 0){
-                char* next_token = strtok(NULL, " \n");
+                char* next_token = command.args[1];
                 if(next_token == NULL){
                     send(client_fd, "-ERROR with AUTH format", strlen("-ERROR with AUTH format"), 0);
                     continue;
@@ -125,7 +126,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
             }
             else if(strcmp(first_token, "GET") == 0){
                 
-                char* next_token = strtok(NULL, " \n");
+                char* next_token = command.args[1];
                 if(next_token == NULL){
                     printf("Error getting token for GET command\n");
                     send(client_fd, "-ERROR with GET format", strlen("-ERROR with GET format"), 0);
@@ -147,14 +148,14 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
             }
 
             else if(strcmp(first_token, "SET") ==0){
-                char* key = strtok(NULL, " ");
+                char* key = command.args[1];
                 if(key == NULL){
                     printf("Error getting first token for SET command\n");
                     send(client_fd, "-ERROR SET formatting 1",strlen("-ERROR SET formatting 1"), 0 );
                     
                     continue;
                 }
-                char* value = strtok(NULL, " \n");
+                char* value = command.args[2];
                 if(value == NULL){
                     printf("Error getting second token for SET command\n");
                     send(client_fd, "-ERROR SET formatting 2",strlen("-ERROR SET formatting 2"), 0 );
@@ -178,7 +179,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
             }
             //Single argument delete
             else if(strcmp(first_token, "DEL") == 0){
-                char* del_key = strtok(NULL, " \n");
+                char* del_key = command.args[1];
                 
                 if(del_key == NULL){
                     printf("Error getting first token for DEL command\n");
@@ -192,7 +193,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                     if(del_res != -1){
                         count++;
                     }
-                    del_key = strtok(NULL, " \n");
+                    del_key = command.args[count+2];
                 }
                 char response[32];
                 send(client_fd, response, strlen(response), 0);
@@ -200,7 +201,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
 
             }
             else if(strcmp(first_token, "EXISTS") == 0){
-                char* exists_key = strtok(NULL, " \n");
+                char* exists_key = command.args[1];
                 
                 if(exists_key == NULL){
                     printf("Error getting key for EXISTS command\n");
@@ -229,7 +230,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
 
 
             else if(strcmp(first_token, "INCR") == 0){
-               char* incr_key = strtok(NULL, " \n");
+               char* incr_key = command.args[1];
                 
                 if(incr_key == NULL){
                     printf("Error getting key for INCR command\n");
@@ -252,7 +253,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 }
             }
             else if(strcmp(first_token, "TTL") == 0){
-                char* ttl_key = strtok(NULL, " \n");
+                char* ttl_key = command.args[1];
                 if(ttl_key == NULL){
                     printf("Error getting first token for TTL command\n");
                     send(client_fd, "-ERROR TTL formatting 1",strlen("-ERROR TTL formatting 1"), 0 );
@@ -268,14 +269,14 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
             }
 
             else if(strcmp(first_token, "EXPIRE") == 0){
-                char* exp_key = strtok(NULL, " ");
+                char* exp_key = command.args[1];
                 if(exp_key == NULL){
                     printf("Error getting first token for EXPIRE command\n");
                     send(client_fd, "-ERROR EXPIRE formatting 1",strlen("-ERROR EXPIRE formatting 1"), 0 );
                     
                     continue;
                 }
-                char* value = strtok(NULL, " \n");
+                char* value = command.args[2];
                 if(value == NULL){
                     printf("Error getting second token for EXPIRE command\n");
                     send(client_fd, "-ERROR EXPIRE formatting 2",strlen("-ERROR EXPIRE formatting 2"), 0 );

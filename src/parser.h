@@ -7,3 +7,5 @@ typedef struct Command{
 
 
 Command parseRESP(char* buffer);
+
+char* convertToRESP(char* buffer);
