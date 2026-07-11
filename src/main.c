@@ -2,7 +2,7 @@
     #include <stdio.h>
     #include "server.h"
     #include <stdlib.h>
-
+    #include "parser.h"
 
 
     int main(){
