@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
+#include <stdlib.h>
 
 
 char* convertToRESP(char* buffer){
@@ -26,7 +26,7 @@ char* convertToRESP(char* buffer){
         }
         offset+=snprintf(out+offset, sizeof(out) - offset, "$%zu\r\n%s\r\n", strlen(tokens[i]), tokens[i]);
     }
-    return out;
+    return strdup(out);
 }
 
 
