@@ -7,6 +7,29 @@
 
 
 
+char* convertToRESP(char* buffer){
+
+    char* tokens[64];
+    int n = 0;
+    tokens[0] = strtok(buffer, " \n");
+    while(tokens[n] != NULL){
+        n++;
+        tokens[n] = strtok(NULL, " \n");
+    }
+
+    char out[1024];
+    int offset = 0;
+    offset += snprintf(out + offset, sizeof(out) - offset, "*%d\r\n", n);
+    for(int i = 0; i < 64; i++){
+        if(tokens[i] == NULL){
+            break;
+        }
+        offset+=snprintf(out+offset, sizeof(out) - offset, "$%zu\r\n%s\r\n", strlen(tokens[i]), tokens[i]);
+    }
+    return out;
+}
+
+
 int main(){
     int client_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(client_fd == -1){
@@ -33,6 +56,10 @@ int main(){
         if(strcmp("quit\n", input_buffer) == 0){
             break;
         }
+        char* resp = convertToRESP(input_buffer);
+        printf("Sending: %s\n", resp);
+        //send(client_fd, resp, strlen(resp), 0);
+        free(resp);
         send(client_fd, input_buffer, strlen(input_buffer), 0);
         int bytes_read  = recv(client_fd, output_buffer, sizeof(output_buffer), 0);
         
@@ -57,3 +84,4 @@ int main(){
     close(client_fd);
     return 0;
 }
+
