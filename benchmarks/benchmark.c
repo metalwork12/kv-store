@@ -29,8 +29,10 @@ int set_test(){
 
     char output_buffer[256];
     //SET input
-    char* input_buffer = "SET foo bar\n"; 
-    send(client_fd, "AUTH password\n", strlen("AUTH password\n"), 0);
+    char* input_buffer = "*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n"; 
+    //GET input 
+    char* get_input_buffer = "*2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n";
+    send(client_fd, "*2\r\n$4\r\nAUTH\r\n$8\r\npassword\r\n", strlen("*2\r\n$4\r\nAUTH\r\n$8\r\npassword\r\n"), 0);
     recv(client_fd, output_buffer, sizeof(output_buffer), 0);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
@@ -70,10 +72,10 @@ int get_test(){
 
     char output_buffer[256];
     //SET input
-    char* input_buffer = "SET foo bar\n"; 
+    char* input_buffer = "*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n"; 
     //GET input 
-    char* get_input_buffer = "GET foo";
-    send(client_fd, "AUTH password\n", strlen("AUTH password\n"), 0);
+    char* get_input_buffer = "*2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n";
+    send(client_fd, "*2\r\n$4\r\nAUTH\r\n$8\r\npassword\r\n", strlen("*2\r\n$4\r\nAUTH\r\n$8\r\npassword\r\n"), 0);
     recv(client_fd, output_buffer, sizeof(output_buffer), 0);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
