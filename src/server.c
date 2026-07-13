@@ -90,10 +90,11 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
             //Add ull terminate
             buffer[bytes_read] = '\0';
            
-
+            
             //check the first token and act accordingly
             Command command = parseRESP(buffer);
             char* first_token = command.args[0];
+            printf("%s", first_token);
             if(first_token == NULL){
                 send(client_fd, "-ERR empty command\r\n", strlen("-ERR empty command\r\n"), 0);
                 continue;
@@ -315,6 +316,12 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
 
             }
 
+            else if(strcmp(first_token, "PING") == 0){
+                send(client_fd, "+PONG\r\n", strlen("+PONG\r\n"), 0);
+            }
+            else if(strcmp(first_token, "CONFIG") == 0){
+                send(client_fd, "*0\r\n", strlen("*0\r\n"), 0);
+            }
 
 
             
