@@ -49,7 +49,7 @@ ThreadPool* createThreadPool(HashTable* hashtable, char* password){
     //creating threadpool and checking its worked
     ThreadPool* threadpool = (ThreadPool*) malloc(sizeof(ThreadPool));
     if(threadpool == NULL){
-        printf("ERROR allocating threadpool memory");
+        printf("ERROR allocating threadpool memory\n");
         return NULL;
     }
     //Allocat the hashtable

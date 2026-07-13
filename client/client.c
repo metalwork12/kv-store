@@ -35,7 +35,6 @@ int main(){
             break;
         }
         char* resp = convertToRESP(input_buffer);
-        printf("Sending: %s\n", resp);
         send(client_fd, resp, strlen(resp), 0);
         free(resp);
         int bytes_read  = recv(client_fd, output_buffer, sizeof(output_buffer), 0);
