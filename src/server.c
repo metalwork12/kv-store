@@ -95,36 +95,36 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
             Command command = parseRESP(buffer);
             char* first_token = command.args[0];
             if(first_token == NULL){
-                send(client_fd, "-ERROR empty command", strlen("-ERROR empty command"), 0);
+                send(client_fd, "-ERR empty command\r\n", strlen("-ERR empty command\r\n"), 0);
                 continue;
             }
             //check for if AUTH command else check if authenticated
             if(strcmp(first_token, "AUTH") == 0){
                 char* next_token = command.args[1];
                 if(next_token == NULL){
-                    send(client_fd, "-ERROR with AUTH format", strlen("-ERROR with AUTH format"), 0);
+                    send(client_fd, "-ERR with AUTH format\r\n", strlen("-ERR with AUTH format\r\n"), 0);
                     continue;
                 }
                 else{
                     if(strcmp(server_password, next_token) == 0){
                         authenticated =1;
-                        send(client_fd, "+Password correct", strlen("+Password correct"), 0);
+                        send(client_fd, "+OK\r\n", strlen("+OK\r\n"), 0);
                         continue;
                     }
                     else{
-                        send(client_fd, "-ERROR Password incorrect", strlen("-ERROR Password incorrect"), 0);
+                        send(client_fd, "-ERR Password incorrect\r\n", strlen("-ERR Password incorrect\r\n"), 0);
                         continue;
                     }
                 }
             }
             else if(authenticated == 0){
-                send(client_fd, "-ERROR not authenticated", strlen("-ERROR not authenticated"), 0);
+                send(client_fd, "-ERR not authenticated\r\n", strlen("-ERR not authenticated\r\n"), 0);
                 
                 continue;
             }
             if(first_token == NULL){
                 printf("NULL token\n");
-                send(client_fd, "-ERROR empty command", strlen("-ERROR empty command"), 0);
+                send(client_fd, "-ERR empty command\r\n", strlen("-ERR empty command\r\n"), 0);
                 
                 continue;
             }
@@ -133,19 +133,19 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 char* next_token = command.args[1];
                 if(next_token == NULL){
                     printf("Error getting token for GET command\n");
-                    send(client_fd, "-ERROR with GET format", strlen("-ERROR with GET format"), 0);
+                    send(client_fd, "-ERR with GET format\r\n", strlen("-ERR with GET format\r\n"), 0);
                     
                     continue;
                 }
                 char* value = get(hashtable, next_token);
                 if(value == NULL){
-                    send(client_fd, "-NOT FOUND", strlen("-NOT FOUND"), 0);
+                    send(client_fd, "$-1\r\n", strlen("$-1\r\n"), 0);
                     
                     continue;
                 }
                 else{
                     char response[1024];
-                    snprintf(response, sizeof(response), "%s", value);
+                    snprintf(response, sizeof(response), "$%zu\r\n%s\r\n",strlen(value), value);
                     send(client_fd, response, strlen(response), 0);
                     
                 }
@@ -155,27 +155,27 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 char* key = command.args[1];
                 if(key == NULL){
                     printf("Error getting first token for SET command\n");
-                    send(client_fd, "-ERROR SET formatting 1",strlen("-ERROR SET formatting 1"), 0 );
+                    send(client_fd, "-ERR SET formatting 1\r\n",strlen("-ERR SET formatting 1\r\n"), 0 );
                     
                     continue;
                 }
                 char* value = command.args[2];
                 if(value == NULL){
                     printf("Error getting second token for SET command\n");
-                    send(client_fd, "-ERROR SET formatting 2",strlen("-ERROR SET formatting 2"), 0 );
+                    send(client_fd, "-ERR SET formatting 2\r\n",strlen("-ERR SET formatting 2\r\n"), 0 );
                     
                     continue;
                 }
                 int set_value = set(hashtable, key, value);
                 if(set_value == -1){
                     printf("Error setting the key value pair\n");
-                    send(client_fd, "-ERROR setting", strlen("-ERROR setting"), 0);
+                    send(client_fd, "-ERR setting\r\n", strlen("-ERR setting\r\n"), 0);
                     
                     continue;
                 }
                 else{
                     
-                    send(client_fd, "+OK", strlen("+OK"), 0);
+                    send(client_fd, "+OK\r\n", strlen("+OK\r\n"), 0);
                     
                 }
 
@@ -187,7 +187,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 
                 if(del_key == NULL){
                     printf("Error getting first token for DEL command\n");
-                    send(client_fd, "-ERROR DEL formatting 1",strlen("-ERROR DEL formatting 1"), 0 );
+                    send(client_fd, "-ERR DEL formatting 1\r\n",strlen("-ERR DEL formatting 1\r\n"), 0 );
                     
                     continue;
                 }
@@ -200,6 +200,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                     del_key = command.args[count+2];
                 }
                 char response[32];
+                snprintf(response, sizeof(response), ":%d\r\n", count);
                 send(client_fd, response, strlen(response), 0);
 
 
@@ -209,24 +210,24 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 
                 if(exists_key == NULL){
                     printf("Error getting key for EXISTS command\n");
-                    send(client_fd, "-ERROR EXISTS formatting 1",strlen("-ERROR EXISTS formatting 1"), 0 );
+                    send(client_fd, "-ERR EXISTS formatting 1\r\n",strlen("-ERR EXISTS formatting 1\r\n"), 0 );
                     
                     continue;
                 }
                 int exists_res = exists(hashtable, exists_key);
                 if(exists_res == 0){
 
-                    send(client_fd, "0",strlen("0"), 0 );
+                    send(client_fd, ":0\r\n",strlen(":0\r\n"), 0 );
                     
                     continue;
                 }
                 else if(exists_res == 1){
-                    send(client_fd, "1", strlen("1"), 0);
+                    send(client_fd, ":1\r\n", strlen(":1\r\n"), 0);
                     continue;
                 }
                 else{
                     printf("Error completing EXIST\n");
-                    send(client_fd, "-ERROR EXIST",strlen("-ERROR EXIST"), 0 );
+                    send(client_fd, "-ERR EXIST\r\n",strlen("-ERR EXIST\r\n"), 0 );
                     
                     continue;
                 }
@@ -238,18 +239,19 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 
                 if(incr_key == NULL){
                     printf("Error getting key for INCR command\n");
-                    send(client_fd, "-ERROR INCR formatting 1",strlen("-ERROR EXISTS formatting 1"), 0 );
+                    send(client_fd, "-ERR INCR formatting 1\r\n",strlen("-ERR EXISTS formatting 1\r\n"), 0 );
                     continue;
                 } 
                 else{
                     int error = 0;
                     int incr_res = incr(hashtable, incr_key, &error);
                     if(error == 1){
-                        send(client_fd, "-ERROR INCR value not integer", strlen("-ERROR INCR value not integer"), 0);
+                        send(client_fd, "-ERR INCR value not integer\r\n", strlen("-ERR INCR value not integer\r\n"), 0);
                 
                         continue;
                     }
                     char response[32];
+                    snprintf(response, sizeof(response), ":%d\r\n", incr_res);
                     send(client_fd, response, strlen(response), 0);
                     
                     continue;
@@ -260,14 +262,14 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 char* ttl_key = command.args[1];
                 if(ttl_key == NULL){
                     printf("Error getting first token for TTL command\n");
-                    send(client_fd, "-ERROR TTL formatting 1",strlen("-ERROR TTL formatting 1"), 0 );
+                    send(client_fd, "-ERR TTL formatting 1\r\n",strlen("-ERR TTL formatting 1\r\n"), 0 );
                     
                     continue;
                 }
                 else{
                     int TTL_res = ttl(hashtable, ttl_key);
                     char response[32];
-                    snprintf(response, sizeof(response), "%d", TTL_res);
+                    snprintf(response, sizeof(response), ":%d\r\n", TTL_res);
                     send(client_fd, response, strlen(response), 0);
                 }
             }
@@ -276,14 +278,14 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 char* exp_key = command.args[1];
                 if(exp_key == NULL){
                     printf("Error getting first token for EXPIRE command\n");
-                    send(client_fd, "-ERROR EXPIRE formatting 1",strlen("-ERROR EXPIRE formatting 1"), 0 );
+                    send(client_fd, "-ERR EXPIRE formatting 1\r\n",strlen("-ERR EXPIRE formatting 1\r\n"), 0 );
                     
                     continue;
                 }
                 char* value = command.args[2];
                 if(value == NULL){
                     printf("Error getting second token for EXPIRE command\n");
-                    send(client_fd, "-ERROR EXPIRE formatting 2",strlen("-ERROR EXPIRE formatting 2"), 0 );
+                    send(client_fd, "-ERR EXPIRE formatting 2\r\n",strlen("-ERR EXPIRE formatting 2\r\n"), 0 );
                     
                     continue;
                 }
@@ -292,7 +294,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
                 long int_value = strtol(value, &endptr, 10);
                 if (*endptr != '\0') {
                     
-                    send(client_fd, "-ERROR EXPIRE time not int",strlen("-ERROR EXPIRE time not int"), 0 );
+                    send(client_fd, "-ERR EXPIRE time not int\r\n",strlen("-ERR EXPIRE time not int\r\n"), 0 );
                     continue;
                 }
                 int exp_value = expire(hashtable, exp_key, (int) int_value);
@@ -301,13 +303,13 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
 
                 if(exp_value == -1){
                     printf("Error setting the key value pair\n");
-                    send(client_fd, "-ERROR setting", strlen("-ERROR setting"), 0);
+                    send(client_fd, "-ERR setting\r\n", strlen("-ERR setting\r\n"), 0);
                     
                     continue;
                 }
                 else{
                     
-                    send(client_fd, "+OK", strlen("+OK"), 0);
+                    send(client_fd, "+OK\r\n", strlen("+OK\r\n"), 0);
                     
                 }
 
@@ -318,7 +320,7 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
             
             else{
                 printf("Error Understanding the first token\n");
-                send(client_fd, "-ERROR unknown command", strlen("-ERROR unknown command"), 0);
+                send(client_fd, "-ERR unknown command\r\n", strlen("-ERR unknown command\r\n"), 0);
                 
                 continue;
             }

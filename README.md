@@ -1,6 +1,6 @@
 # kv-store
 
-A networked key-value store written in C. Clients are able to connect over TCP and can store and manipulate key-value pairs. Data is stored to the disk regularly and loaded on start up so that data persists over sessions. Concurrent clients are handled via a threadpool. Key-value pairs also have an expiry time value, that when met is cleaned up automatically.
+A networked key-value store written in C, compatible with redis-cli. Clients are able to connect over TCP and can store and manipulate key-value pairs. Data is stored to the disk regularly and loaded on start up so that data persists over sessions. Concurrent clients are handled via a threadpool. Key-value pairs also have an expiry time value, that when met is cleaned up automatically.
 
 ## Overview
 
@@ -34,6 +34,8 @@ kv-store/
 │   ├── server.h
 │   ├── threadpool.c     (worker threads, job queue, sweeper, snapshot thread)
 │   ├── threadpool.h
+│   ├── parser.c     
+│   ├── parser.h
 ├── client/
 │   └── client.c         (CLI client)
 ├── benchmarks/
