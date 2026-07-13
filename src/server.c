@@ -94,6 +94,10 @@ void handleClient(int client_fd, HashTable* hashtable, char* server_password){
             //check the first token and act accordingly
             Command command = parseRESP(buffer);
             char* first_token = command.args[0];
+            if(first_token == NULL){
+                send(client_fd, "-ERROR empty command", strlen("-ERROR empty command"), 0);
+                continue;
+            }
             //check for if AUTH command else check if authenticated
             if(strcmp(first_token, "AUTH") == 0){
                 char* next_token = command.args[1];

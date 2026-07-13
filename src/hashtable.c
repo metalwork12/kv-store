@@ -369,7 +369,6 @@ int ttl(HashTable* hashtable, char* key){
         return -1;
     }
     if(strcmp(key, entry->key) == 0){
-        printf("DEBUG: expiry=%ld now=%ld\n", entry->expiry, time(NULL));
         pthread_mutex_unlock(&hashtable->mutexes[hashed_key]);
         if(entry->expiry == 0){
             return -1;
