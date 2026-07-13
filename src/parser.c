@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Command parseRESP(char *buffer){
+Command parseRESP(char *buffer, char** next){
     
     struct Command command;
     command.argc = 0;
@@ -30,7 +30,7 @@ Command parseRESP(char *buffer){
     }
 
 
-
+    *next = buffer;
     return command;
 }
 

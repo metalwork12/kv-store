@@ -6,6 +6,6 @@ typedef struct Command{
 } Command;
 
 
-Command parseRESP(char* buffer);
+Command parseRESP(char* buffer, char** next);
 
 char* convertToRESP(char* buffer);
